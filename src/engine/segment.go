@@ -148,6 +148,8 @@ const (
 	GIT SegmentType = "git"
 	// GITVERSION represents the gitversion information
 	GITVERSION SegmentType = "gitversion"
+	// GODOT write which Godot version the current Godot project is build with
+	GODOT SegmentType = "godot"
 	// GOLANG writes which go version is currently active
 	GOLANG SegmentType = "go"
 	// HASKELL segment
@@ -271,6 +273,7 @@ var Segments = map[SegmentType]func() SegmentWriter{
 	GCP:           func() SegmentWriter { return &segments.Gcp{} },
 	GIT:           func() SegmentWriter { return &segments.Git{} },
 	GITVERSION:    func() SegmentWriter { return &segments.GitVersion{} },
+	GODOT:		   func() SegmentWriter { return &segments.Godot{} },
 	GOLANG:        func() SegmentWriter { return &segments.Golang{} },
 	HASKELL:       func() SegmentWriter { return &segments.Haskell{} },
 	IPIFY:         func() SegmentWriter { return &segments.IPify{} },
