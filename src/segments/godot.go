@@ -2,12 +2,11 @@ package segments
 
 import (
 	"errors"
-	"fmt"
-	"path/filepath"
-	"strings"	
-
-  	"oh-my-posh/platform"
-  	"oh-my-posh/properties"
+	"fmt"	
+	"strings"
+  	
+	"github.com/jandedobbeleer/oh-my-posh/src/platform"
+	"github.com/jandedobbeleer/oh-my-posh/src/properties"
 )
 
 type Godot struct {
@@ -24,9 +23,7 @@ const (
 
 func (g *Godot) Enabled() bool {
 	godotVersion, err := g.GetGodotVersion()
-
-
-    return true
+    return godotVersion != "" && err == nil
 }
 
 func (g *Godot) GetGodotVersion() (version string, err error) {
@@ -36,16 +33,12 @@ func (g *Godot) GetGodotVersion() (version string, err error) {
 		return
 	}
 
-	if !g.env.HasFilesInDir(projectDir.Path, "project.godot") {
-		g.env.Debug("No project.godot file found")
-		return
-	}
-
 	projectFilePath := projectFile.Path
 	projectFileContent := g.env.FileContent(projectFilePath)
+	firstLine := strings.Split(projectFileContent, "\n")[0]
 
-	versionKey := "config_version="
-	versionKeyIndex := strings.Index(0, versionKey)
+	versionKey := "config_version = "
+	versionKeyIndex := strings.Index(firstLine, versionKey)
 
 	if versionKeyIndex == -1 {
 		err := errors.New("project.godot is missing the 'config_version' key")
@@ -56,7 +49,7 @@ func (g *Godot) GetGodotVersion() (version string, err error) {
 	configVersion := firstLine[versionValueIndex:]
 	configVersion = strings.TrimSpace(configVersion)
 
-	var godotVersionsByConfigVersion = new map[string]string {
+	var godotVersionsByConfigVersion = map[string]string {
 		"4": "3.x",
 		"5": "4.x",
 	}
@@ -68,7 +61,7 @@ func (g *Godot) GetGodotVersion() (version string, err error) {
 	}
 
 	g.env.Debug(fmt.Sprintf("Godot version %s is not supported", configVersion))
-	err := errors.New("Godot version for this project is not supported")
+	err = errors.New("Godot version for this project is not supported")
 	return "", err 
 }
 
@@ -79,6 +72,4 @@ func (g *Godot) Template() string {
 func (g *Godot) Init(props properties.Properties, env platform.Environment) {
     g.props = props
     g.env = env
-
-    g.Text = props.GetString(NewProp, "Hello")
 }
